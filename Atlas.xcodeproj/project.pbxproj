@@ -11,6 +11,18 @@
 		1317B3562FB2188C006D8416 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3552FB2188C006D8416 /* ContentView.swift */; };
 		1317B3582FB21895006D8416 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1317B3572FB21895006D8416 /* Assets.xcassets */; };
 		1317B35B2FB21895006D8416 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1317B35A2FB21895006D8416 /* Preview Assets.xcassets */; };
+		1317B3632FB218A9006D8416 /* LiquidGlassBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3622FB218A9006D8416 /* LiquidGlassBackground.swift */; };
+		1317B3672FB218CC006D8416 /* ArgoClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3652FB218CC006D8416 /* ArgoClient.swift */; };
+		1317B3682FB218CC006D8416 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3662FB218CC006D8416 /* Models.swift */; };
+		1317B36D2FB21D97006D8416 /* ArgoClient+Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3692FB21D95006D8416 /* ArgoClient+Persistence.swift */; };
+		1317B36E2FB21D97006D8416 /* ArgoClient+Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B36A2FB21D96006D8416 /* ArgoClient+Network.swift */; };
+		1317B36F2FB21D97006D8416 /* ArgoSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B36B2FB21D96006D8416 /* ArgoSupport.swift */; };
+		1317B3702FB21D97006D8416 /* ArgoClient+Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B36C2FB21D97006D8416 /* ArgoClient+Auth.swift */; };
+		1317B3732FB220A7006D8416 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3722FB220A7006D8416 /* LoginView.swift */; };
+		1317B3752FB22151006D8416 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3742FB22150006D8416 /* MainTabView.swift */; };
+		1317B3772FB22162006D8416 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3762FB22162006D8416 /* ProfileView.swift */; };
+		1317B3792FB2217C006D8416 /* RegistroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3782FB2217C006D8416 /* RegistroView.swift */; };
+		1317B37B2FB222AE006D8416 /* VotiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B37A2FB222AD006D8416 /* VotiView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +31,18 @@
 		1317B3552FB2188C006D8416 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		1317B3572FB21895006D8416 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1317B35A2FB21895006D8416 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1317B3622FB218A9006D8416 /* LiquidGlassBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiquidGlassBackground.swift; sourceTree = "<group>"; };
+		1317B3652FB218CC006D8416 /* ArgoClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArgoClient.swift; sourceTree = "<group>"; };
+		1317B3662FB218CC006D8416 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		1317B3692FB21D95006D8416 /* ArgoClient+Persistence.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArgoClient+Persistence.swift"; sourceTree = "<group>"; };
+		1317B36A2FB21D96006D8416 /* ArgoClient+Network.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArgoClient+Network.swift"; sourceTree = "<group>"; };
+		1317B36B2FB21D96006D8416 /* ArgoSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArgoSupport.swift; sourceTree = "<group>"; };
+		1317B36C2FB21D97006D8416 /* ArgoClient+Auth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ArgoClient+Auth.swift"; sourceTree = "<group>"; };
+		1317B3722FB220A7006D8416 /* LoginView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		1317B3742FB22150006D8416 /* MainTabView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		1317B3762FB22162006D8416 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		1317B3782FB2217C006D8416 /* RegistroView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistroView.swift; sourceTree = "<group>"; };
+		1317B37A2FB222AD006D8416 /* VotiView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VotiView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +75,9 @@
 		1317B3522FB2188C006D8416 /* Atlas */ = {
 			isa = PBXGroup;
 			children = (
+				1317B3712FB22089006D8416 /* Views */,
+				1317B3642FB218CC006D8416 /* ArgoKit */,
+				1317B3612FB218A9006D8416 /* Extensions */,
 				1317B3532FB2188C006D8416 /* AtlasApp.swift */,
 				1317B3552FB2188C006D8416 /* ContentView.swift */,
 				1317B3572FB21895006D8416 /* Assets.xcassets */,
@@ -65,6 +92,39 @@
 				1317B35A2FB21895006D8416 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1317B3612FB218A9006D8416 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				1317B3622FB218A9006D8416 /* LiquidGlassBackground.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		1317B3642FB218CC006D8416 /* ArgoKit */ = {
+			isa = PBXGroup;
+			children = (
+				1317B36C2FB21D97006D8416 /* ArgoClient+Auth.swift */,
+				1317B36A2FB21D96006D8416 /* ArgoClient+Network.swift */,
+				1317B3692FB21D95006D8416 /* ArgoClient+Persistence.swift */,
+				1317B36B2FB21D96006D8416 /* ArgoSupport.swift */,
+				1317B3652FB218CC006D8416 /* ArgoClient.swift */,
+				1317B3662FB218CC006D8416 /* Models.swift */,
+			);
+			path = ArgoKit;
+			sourceTree = "<group>";
+		};
+		1317B3712FB22089006D8416 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1317B37A2FB222AD006D8416 /* VotiView.swift */,
+				1317B3722FB220A7006D8416 /* LoginView.swift */,
+				1317B3742FB22150006D8416 /* MainTabView.swift */,
+				1317B3762FB22162006D8416 /* ProfileView.swift */,
+				1317B3782FB2217C006D8416 /* RegistroView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -138,7 +198,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				1317B3562FB2188C006D8416 /* ContentView.swift in Sources */,
+				1317B36D2FB21D97006D8416 /* ArgoClient+Persistence.swift in Sources */,
+				1317B36F2FB21D97006D8416 /* ArgoSupport.swift in Sources */,
+				1317B3792FB2217C006D8416 /* RegistroView.swift in Sources */,
+				1317B3632FB218A9006D8416 /* LiquidGlassBackground.swift in Sources */,
+				1317B3772FB22162006D8416 /* ProfileView.swift in Sources */,
 				1317B3542FB2188C006D8416 /* AtlasApp.swift in Sources */,
+				1317B3752FB22151006D8416 /* MainTabView.swift in Sources */,
+				1317B3702FB21D97006D8416 /* ArgoClient+Auth.swift in Sources */,
+				1317B36E2FB21D97006D8416 /* ArgoClient+Network.swift in Sources */,
+				1317B3672FB218CC006D8416 /* ArgoClient.swift in Sources */,
+				1317B3732FB220A7006D8416 /* LoginView.swift in Sources */,
+				1317B37B2FB222AE006D8416 /* VotiView.swift in Sources */,
+				1317B3682FB218CC006D8416 /* Models.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
