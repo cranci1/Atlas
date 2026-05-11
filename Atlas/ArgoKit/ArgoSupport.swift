@@ -40,7 +40,7 @@ public enum ArgoError: LocalizedError {
         case .invalidLoginChallenge:
             return "Login challenge non trovato."
         case .invalidLoginCode:
-            return "Codice di autorizzazione non trovato."
+            return "Codice di autorizzazione non trovato, controlla le credenziali."
         case .invalidResponse(let message):
             return "Risposta non valida: \(message)"
         }
