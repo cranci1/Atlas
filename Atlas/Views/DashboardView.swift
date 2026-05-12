@@ -10,17 +10,17 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var client: ArgoClient
     @State private var isRefreshing = false
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
                 LazyVStack(spacing: 18) {
                     if let profile = client.profile {
-                        StudentHeaderCard(profile: profile, dashboard: client.dashboard)
+                        StudentHeaderCard(profile: profile)
                     }
-
+                    
                     if let db = client.dashboard {
-                        StatsRow(dashboard: db)
+                        StatsRow(dashboard: db, tomorrowHomeworkCount: tomorrowHomeworkCount)
                         
                         HorizontalSection(
                             title: "Bacheca",
@@ -42,7 +42,7 @@ struct DashboardView: View {
                         HorizontalSection(
                             title: "Promemoria",
                             icon: "bell.fill",
-                            items: Array(db.promemoria.prefix(5)),
+                            items: Array(upcomingPromemoria(from: db.promemoria).prefix(5)),
                             id: \.pk
                         ) { item in
                             CommunicationCard(
@@ -79,7 +79,7 @@ struct DashboardView: View {
             .refreshable { await refresh() }
         }
     }
-
+    
     private func refresh() async {
         isRefreshing = true
         try? await client.fetchDashboard()
@@ -93,7 +93,7 @@ struct HorizontalSection<Item, ID: Hashable, Content: View>: View {
     let items: [Item]
     let id: KeyPath<Item, ID>
     @ViewBuilder let content: (Item) -> Content
-
+    
     var body: some View {
         if !items.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
@@ -112,13 +112,12 @@ struct HorizontalSection<Item, ID: Hashable, Content: View>: View {
 
 struct StudentHeaderCard: View {
     let profile: Profilo
-    let dashboard: DashboardDati?
-
+    
     private var initials: String {
         let parts = profile.alunno.nominativo.split(separator: " ")
         return parts.prefix(2).compactMap { $0.first }.map(String.init).joined()
     }
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top, spacing: 14) {
@@ -130,7 +129,7 @@ struct StudentHeaderCard: View {
                         .font(.headline.bold())
                         .foregroundStyle(.white)
                 }
-
+                
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Bentornato")
                         .font(.caption)
@@ -154,12 +153,13 @@ struct StudentHeaderCard: View {
 
 struct StatsRow: View {
     let dashboard: DashboardDati
-
+    let tomorrowHomeworkCount: Int
+    
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 12)], spacing: 12) {
             StatCard(title: "Media", value: String(format: "%.1f", dashboard.mediaGenerale), icon: "chart.bar.fill", color: .blue)
-            StatCard(title: "Voti", value: "\(dashboard.voti.count)", icon: "star.fill", color: .orange)
-            StatCard(title: "Assenze", value: "\(dashboard.appello.count)", icon: "calendar.badge.minus", color: .red)
+            StatCard(title: "Compiti", value: "\(tomorrowHomeworkCount)", icon: "calendar.badge.clock", color: .orange)
+            StatCard(title: "Eventi", value: "\(dashboard.appello.count)", icon: "calendar.badge.minus", color: .red)
         }
     }
 }
@@ -169,7 +169,7 @@ struct StatCard: View {
     let value: String
     let icon: String
     let color: Color
-
+    
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: icon)
@@ -190,7 +190,7 @@ struct StatCard: View {
 struct SectionHeader: View {
     let title: String
     let icon: String
-
+    
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: icon)
@@ -211,13 +211,13 @@ struct CommunicationCard: View {
     let dateText: Substring
     let unread: Bool
     let accentColor: Color
-
+    
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             RoundedRectangle(cornerRadius: 4, style: .continuous)
                 .fill(accentColor)
                 .frame(width: 4)
-
+            
             VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 8) {
                     VStack(alignment: .leading, spacing: 4) {
@@ -247,7 +247,7 @@ struct CommunicationCard: View {
 
 struct BachecaView: View {
     @EnvironmentObject var client: ArgoClient
-
+    
     struct CommunicationDisplayItem: Identifiable {
         let id: String
         let title: String
@@ -257,7 +257,7 @@ struct BachecaView: View {
         let isUnread: Bool
         let accentColor: Color
     }
-
+    
     private var items: [CommunicationDisplayItem] {
         let schoolItems = (client.dashboard?.bacheca ?? []).map { item in
             CommunicationDisplayItem(
@@ -283,7 +283,7 @@ struct BachecaView: View {
         }
         return (schoolItems + studentItems).sorted { $0.dateText > $1.dateText }
     }
-
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -317,4 +317,51 @@ struct BachecaView: View {
             .navigationTitle("Bacheca")
         }
     }
+}
+
+private extension DashboardView {
+    var tomorrowHomeworkCount: Int {
+        guard let registro = client.dashboard?.registro else { return 0 }
+        
+        let tomorrowKey = Self.dayFormatter.string(from: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
+        
+        return registro.reduce(into: 0) { total, entry in
+            total += entry.compiti.filter { $0.dataConsegna.prefix(10) == tomorrowKey }.count
+        }
+    }
+    
+    func reminderDate(for item: Promemoria) -> Date? {
+        Self.dateTimeFormatter.date(from: "\(item.datGiorno) \(item.oraInizio)") ?? Self.dayFormatter.date(from: item.datGiorno)
+    }
+    
+    func upcomingPromemoria(from items: [Promemoria]) -> [Promemoria] {
+        let now = Date()
+        let upcoming = items.filter { (reminderDate(for: $0) ?? .distantPast) >= now }
+        let source = upcoming.isEmpty ? items : upcoming
+        
+        return source.sorted {
+            let leftDate = reminderDate(for: $0) ?? .distantFuture
+            let rightDate = reminderDate(for: $1) ?? .distantFuture
+            if leftDate == rightDate { return $0.pk < $1.pk }
+            return leftDate < rightDate
+        }
+    }
+    
+    static let dateTimeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter
+    }()
+    
+    static let dayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }
