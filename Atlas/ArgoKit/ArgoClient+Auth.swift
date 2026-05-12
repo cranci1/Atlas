@@ -110,16 +110,6 @@ extension ArgoClient {
             try await primeAuthSession(from: startURL)
         }
         
-        if let loginPageURL = URL(string: "https://www.portaleargo.it/auth/sso/login/?login_challenge=\(loginChallenge)") {
-            var loginPageRequest = URLRequest(url: loginPageURL)
-            loginPageRequest.httpMethod = "GET"
-            applyBrowserHeaders(&loginPageRequest)
-            loginPageRequest.setValue("https://www.portaleargo.it/", forHTTPHeaderField: "Referer")
-            applyCookies(&loginPageRequest)
-            let (_, loginPageResponse) = try await session.data(for: loginPageRequest)
-            storeCookies(from: loginPageResponse, fallbackURL: loginPageRequest.url)
-        }
-        
         guard let ssoURL = URL(string: argoSSOLoginURL) else { throw ArgoError.invalidLoginURL }
         var loginRequest = URLRequest(url: ssoURL)
         loginRequest.httpMethod = "POST"
