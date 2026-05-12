@@ -107,7 +107,7 @@ struct SubjectDetailView: View {
     let votes: [Voto]
     
     private var sortedVotes: [Voto] {
-        votes.sorted { $0.datGiorno < $1.datGiorno }
+        votes.sorted { $0.datGiorno > $1.datGiorno }
     }
     
     private let dateFormatter: DateFormatter = {
@@ -122,6 +122,10 @@ struct SubjectDetailView: View {
     
     private var minChartVoto: Double {
         max(stats.minVote - 0.15, 0)
+    }
+    
+    private var maxChartVoto: Double {
+        min(stats.maxVote + 0.15, 10)
     }
     
     var body: some View {
@@ -141,11 +145,20 @@ struct SubjectDetailView: View {
                             )
                             .lineStyle(StrokeStyle(lineWidth: 3))
                             .foregroundStyle(.teal.opacity(0.5))
-                            .interpolationMethod(.catmullRom)
+                            .interpolationMethod(.monotone)
                         }
+                        
+                        RuleMark(y: .value("Media", stats.average))
+                            .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
+                            .foregroundStyle(averageColor(stats.average).opacity(0.8))
+                            .annotation(position: .trailing, alignment: .center) {
+                                Text(String(format: "%.1f", stats.average))
+                                    .font(.caption2.bold())
+                                    .foregroundStyle(averageColor(stats.average))
+                            }
                     }
                     .frame(height: 250)
-                    .chartYScale(domain: minChartVoto...10)
+                    .chartYScale(domain: minChartVoto...maxChartVoto)
                     .padding(.vertical)
                 }
             }
@@ -241,4 +254,3 @@ struct VotoRow: View {
     
     private var gradeColor: Color { averageColor(voto.valore) }
 }
-
