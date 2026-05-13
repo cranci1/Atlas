@@ -23,6 +23,9 @@
 		1317B3772FB22162006D8416 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3762FB22162006D8416 /* ProfileView.swift */; };
 		1317B3792FB2217C006D8416 /* RegistroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B3782FB2217C006D8416 /* RegistroView.swift */; };
 		1317B37B2FB222AE006D8416 /* VotiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1317B37A2FB222AD006D8416 /* VotiView.swift */; };
+		1384B3742FB4AF7000C8B575 /* BachecaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3732FB4AF7000C8B575 /* BachecaView.swift */; };
+		1384B3772FB4AFBE00C8B575 /* CommunicationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3762FB4AFBE00C8B575 /* CommunicationCard.swift */; };
+		1384B3792FB4B00500C8B575 /* StatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3782FB4B00500C8B575 /* StatCard.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +46,9 @@
 		1317B3762FB22162006D8416 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		1317B3782FB2217C006D8416 /* RegistroView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistroView.swift; sourceTree = "<group>"; };
 		1317B37A2FB222AD006D8416 /* VotiView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VotiView.swift; sourceTree = "<group>"; };
+		1384B3732FB4AF7000C8B575 /* BachecaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BachecaView.swift; sourceTree = "<group>"; };
+		1384B3762FB4AFBE00C8B575 /* CommunicationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunicationCard.swift; sourceTree = "<group>"; };
+		1384B3782FB4B00500C8B575 /* StatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCard.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,13 +124,24 @@
 		1317B3712FB22089006D8416 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1384B3752FB4AF9300C8B575 /* Elements */,
 				1317B37A2FB222AD006D8416 /* VotiView.swift */,
 				1317B3722FB220A7006D8416 /* LoginView.swift */,
 				1317B3762FB22162006D8416 /* ProfileView.swift */,
 				1317B3782FB2217C006D8416 /* RegistroView.swift */,
 				1317B3742FB22150006D8416 /* DashboardView.swift */,
+				1384B3732FB4AF7000C8B575 /* BachecaView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		1384B3752FB4AF9300C8B575 /* Elements */ = {
+			isa = PBXGroup;
+			children = (
+				1384B3762FB4AFBE00C8B575 /* CommunicationCard.swift */,
+				1384B3782FB4B00500C8B575 /* StatCard.swift */,
+			);
+			path = Elements;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -198,9 +215,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				1317B3562FB2188C006D8416 /* ContentView.swift in Sources */,
+				1384B3792FB4B00500C8B575 /* StatCard.swift in Sources */,
 				1317B36D2FB21D97006D8416 /* ArgoClient+Persistence.swift in Sources */,
+				1384B3772FB4AFBE00C8B575 /* CommunicationCard.swift in Sources */,
 				1317B36F2FB21D97006D8416 /* ArgoSupport.swift in Sources */,
 				1317B3792FB2217C006D8416 /* RegistroView.swift in Sources */,
+				1384B3742FB4AF7000C8B575 /* BachecaView.swift in Sources */,
 				1317B3632FB218A9006D8416 /* LiquidGlassBackground.swift in Sources */,
 				1317B3772FB22162006D8416 /* ProfileView.swift in Sources */,
 				1317B3542FB2188C006D8416 /* AtlasApp.swift in Sources */,

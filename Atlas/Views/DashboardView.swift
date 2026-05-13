@@ -158,32 +158,9 @@ struct StatsRow: View {
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 12)], spacing: 12) {
             StatCard(title: "Media", value: String(format: "%.1f", dashboard.mediaGenerale), icon: "chart.bar.fill", color: .blue)
-            StatCard(title: "Compiti", value: "\(tomorrowHomeworkCount)", icon: "calendar.badge.clock", color: .orange)
+            StatCard(title: "Compiti", value: "\(tomorrowHomeworkCount)", icon: "backpack", color: .orange)
             StatCard(title: "Eventi", value: "\(dashboard.appello.count)", icon: "calendar.badge.minus", color: .red)
         }
-    }
-}
-
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.headline)
-                .foregroundStyle(color)
-            Text(value)
-                .font(.title3.bold())
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 18)
-        .applyLiquidGlassBackground(cornerRadius: 20)
     }
 }
 
@@ -204,121 +181,6 @@ struct SectionHeader: View {
     }
 }
 
-struct CommunicationCard: View {
-    let title: String
-    let subtitle: String
-    let message: String
-    let dateText: Substring
-    let unread: Bool
-    let accentColor: Color
-    
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .fill(accentColor)
-                .frame(width: 4)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .top, spacing: 8) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(title)
-                            .font(.subheadline.bold())
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                        Text(subtitle)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 0)
-                    Text(dateText)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.primary)
-                    .lineLimit(4)
-            }
-        }
-        .padding(14)
-        .applyLiquidGlassBackground(cornerRadius: 18)
-    }
-}
-
-struct BachecaView: View {
-    @EnvironmentObject var client: ArgoClient
-    
-    struct CommunicationDisplayItem: Identifiable {
-        let id: String
-        let title: String
-        let subtitle: String
-        let message: String
-        let dateText: Substring
-        let isUnread: Bool
-        let accentColor: Color
-    }
-    
-    private var items: [CommunicationDisplayItem] {
-        let schoolItems = (client.dashboard?.bacheca ?? []).map { item in
-            CommunicationDisplayItem(
-                id: "bacheca-\(item.pk)",
-                title: item.autore.isEmpty ? "Comunicazione" : item.autore,
-                subtitle: item.categoria.isEmpty ? "Bacheca scuola" : item.categoria,
-                message: item.messaggio,
-                dateText: item.data.prefix(10),
-                isUnread: !item.isPresaVisione,
-                accentColor: .teal
-            )
-        }
-        let studentItems = (client.dashboard?.bachecaAlunno ?? []).map { item in
-            CommunicationDisplayItem(
-                id: "bacheca-alunno-\(item.pk)",
-                title: item.nomeFile.isEmpty ? "Comunicazione" : item.nomeFile,
-                subtitle: "Bacheca alunno",
-                message: item.messaggio,
-                dateText: item.data.prefix(10),
-                isUnread: !item.isPresaVisione,
-                accentColor: .green
-            )
-        }
-        return (schoolItems + studentItems).sorted { $0.dateText > $1.dateText }
-    }
-    
-    var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 16) {
-                    if items.isEmpty {
-                        ContentUnavailableView(
-                            "Nessuna comunicazione",
-                            systemImage: "tray",
-                            description: Text("Quando la scuola pubblica avvisi o materiali, appariranno qui.")
-                        )
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                    } else {
-                        ForEach(items) { item in
-                            CommunicationCard(
-                                title: item.title,
-                                subtitle: item.subtitle,
-                                message: item.message,
-                                dateText: item.dateText,
-                                unread: item.isUnread,
-                                accentColor: item.accentColor
-                            )
-                        }
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 20)
-            }
-            .scrollIndicators(.hidden)
-            .background(Color(.systemGroupedBackground))
-            .navigationTitle("Bacheca")
-        }
-    }
-}
-
 private extension DashboardView {
     var tomorrowHomeworkCount: Int {
         guard let registro = client.dashboard?.registro else { return 0 }
@@ -331,7 +193,7 @@ private extension DashboardView {
     }
     
     func reminderDate(for item: Promemoria) -> Date? {
-        Self.dateTimeFormatter.date(from: "\(item.datGiorno) \(item.oraInizio)") ?? Self.dayFormatter.date(from: item.datGiorno)
+        Self.dayFormatter.date(from: "\(item.datGiorno) \(item.oraInizio)") ?? Self.dayFormatter.date(from: item.datGiorno)
     }
     
     func upcomingPromemoria(from items: [Promemoria]) -> [Promemoria] {
@@ -346,15 +208,6 @@ private extension DashboardView {
             return leftDate < rightDate
         }
     }
-    
-    static let dateTimeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
     
     static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
