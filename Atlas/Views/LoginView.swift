@@ -19,14 +19,43 @@ private struct AuthField: View {
     var focusedField: FocusState<LoginField?>.Binding
     let field: LoginField
     let nextField: LoginField?
+    var showPassword: Binding<Bool>? = nil
     
     var body: some View {
         Group {
-            if isSecure {
-                SecureField(placeholder, text: text)
+            if isSecure, let show = showPassword {
+                HStack(spacing: 8) {
+                    if show.wrappedValue {
+                        TextField(placeholder, text: text)
+                            .textInputAutocapitalization(autocapitalization)
+                            .focused(focusedField, equals: field)
+                            .submitLabel(nextField == nil ? .go : .next)
+                            .onSubmit { if let next = nextField { focusedField.wrappedValue = next } }
+                    } else {
+                        SecureField(placeholder, text: text)
+                            .focused(focusedField, equals: field)
+                            .submitLabel(nextField == nil ? .go : .next)
+                            .onSubmit { if let next = nextField { focusedField.wrappedValue = next } }
+                    }
+                    
+                    Button(action: { show.wrappedValue.toggle() }) {
+                        Image(systemName: show.wrappedValue ? "eye.slash" : "eye")
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
+                }
             } else {
-                TextField(placeholder, text: text)
-                    .textInputAutocapitalization(autocapitalization)
+                if isSecure {
+                    SecureField(placeholder, text: text)
+                        .focused(focusedField, equals: field)
+                        .submitLabel(nextField == nil ? .go : .next)
+                        .onSubmit { if let next = nextField { focusedField.wrappedValue = next } }
+                } else {
+                    TextField(placeholder, text: text)
+                        .textInputAutocapitalization(autocapitalization)
+                        .focused(focusedField, equals: field)
+                        .submitLabel(nextField == nil ? .go : .next)
+                        .onSubmit { if let next = nextField { focusedField.wrappedValue = next } }
+                }
             }
         }
         .font(.system(size: 15, weight: .regular))
@@ -49,11 +78,6 @@ private struct AuthField: View {
                 )
         )
         .animation(.easeInOut(duration: 0.15), value: focusedField.wrappedValue)
-        .focused(focusedField, equals: field)
-        .submitLabel(nextField == nil ? .go : .next)
-        .onSubmit {
-            if let next = nextField { focusedField.wrappedValue = next }
-        }
     }
 }
 
@@ -63,6 +87,7 @@ struct LoginView: View {
     @State private var schoolCode = ""
     @State private var username = ""
     @State private var password = ""
+    @State private var showPassword = false
     @State private var isLoading = false
     @State private var errorMsg: String?
     
@@ -126,7 +151,8 @@ struct LoginView: View {
                                 isSecure: true,
                                 focusedField: $focusedField,
                                 field: .password,
-                                nextField: nil
+                                nextField: nil,
+                                showPassword: $showPassword
                             )
                             .onSubmit {
                                 if canLogin { Task { await performLogin() } }
