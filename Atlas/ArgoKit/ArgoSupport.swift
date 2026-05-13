@@ -102,7 +102,7 @@ func argoFormatDate(_ date: Date) -> String {
 
 func argoRandomString(_ length: Int) -> String {
     let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    return String((0..<length).compactMap { _ in characters.randomElement() })
+    return String((0..<length).map { _ in characters.randomElement() ?? "A" })
 }
 
 func pkceChallengeFromVerifier(_ verifier: String) -> String {
@@ -180,43 +180,55 @@ struct TokenError: Decodable {
 
 func handleOperation<T: PKIdentifiable>(_ incoming: [APIOperation<T>], old: [T]?) -> [T] {
     var result: [T] = old ?? []
-    var toDelete: [String] = []
+    var indexByPK: [String: Int] = [:]
+    indexByPK.reserveCapacity(result.count)
+    for (index, item) in result.enumerated() {
+        indexByPK[item.pk] = index
+    }
+    var toDelete = Set<String>()
     
     for item in incoming {
         switch item {
         case .delete(let pk):
-            toDelete.append(pk)
+            toDelete.insert(pk)
         case .insert(let value):
-            if let index = result.firstIndex(where: { $0.pk == value.pk }) {
+            if let index = indexByPK[value.pk] {
                 result[index] = value
             } else {
+                indexByPK[value.pk] = result.count
                 result.append(value)
             }
         }
     }
     
-    return result.filter { !toDelete.contains($0.pk) }
+    return toDelete.isEmpty ? result : result.filter { !toDelete.contains($0.pk) }
 }
 
 func handleOperationCustomPK<T>(_ incoming: [APIOperationCustomPK<T>], old: [T]?, pk: (T) -> String) -> [T] {
     var result: [T] = old ?? []
-    var toDelete: [String] = []
+    var indexByKey: [String: Int] = [:]
+    indexByKey.reserveCapacity(result.count)
+    for (index, item) in result.enumerated() {
+        indexByKey[pk(item)] = index
+    }
+    var toDelete = Set<String>()
     
     for item in incoming {
         switch item {
         case .delete(let pkValue):
-            toDelete.append(pkValue)
+            toDelete.insert(pkValue)
         case .insert(let value):
             let key = pk(value)
-            if let index = result.firstIndex(where: { pk($0) == key }) {
+            if let index = indexByKey[key] {
                 result[index] = value
             } else {
+                indexByKey[key] = result.count
                 result.append(value)
             }
         }
     }
     
-    return result.filter { !toDelete.contains(pk($0)) }
+    return toDelete.isEmpty ? result : result.filter { !toDelete.contains(pk($0)) }
 }
 
 final class NoRedirectDelegate: NSObject, URLSessionTaskDelegate {

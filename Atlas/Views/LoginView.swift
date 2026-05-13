@@ -205,11 +205,11 @@ struct LoginView: View {
         isLoading = true
         defer { isLoading = false }
         
-        client.setCredentials(Credentials(
+        client.credentials = Credentials(
             schoolCode: schoolCode.trimmingCharacters(in: .whitespaces),
             username: username.trimmingCharacters(in: .whitespaces),
             password: password
-        ))
+        )
         
         do {
             try await client.login()

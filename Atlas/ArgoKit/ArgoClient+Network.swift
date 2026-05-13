@@ -119,18 +119,22 @@ extension ArgoClient {
     }
     
     func cookieHeaderForHost(_ host: String) -> String? {
-        var pairs: [String] = []
+        var pairs = Set<String>()
         
         if let exact = manualCookieJar[host] {
-            pairs.append(contentsOf: exact.map { "\($0.key)=\($0.value)" })
+            for (name, value) in exact {
+                pairs.insert("\(name)=\(value)")
+            }
         }
         
         for (storedHost, cookies) in manualCookieJar where host.hasSuffix("." + storedHost) {
-            pairs.append(contentsOf: cookies.map { "\($0.key)=\($0.value)" })
+            for (name, value) in cookies {
+                pairs.insert("\(name)=\(value)")
+            }
         }
         
         if pairs.isEmpty { return nil }
-        return Array(Set(pairs)).joined(separator: "; ")
+        return Array(pairs).joined(separator: "; ")
     }
     
     func apiRequest<T: Decodable>(

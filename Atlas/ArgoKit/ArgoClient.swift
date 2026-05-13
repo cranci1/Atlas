@@ -16,7 +16,6 @@ public final class ArgoClient: ObservableObject {
     @Published public var dashboard: DashboardDati? { didSet { persistState() } }
     @Published public var isReady = false
     @Published public var isLoading = false
-    @Published public var lastError: Error?
     
     public var credentials: Credentials
     public let version: String
@@ -53,10 +52,6 @@ public final class ArgoClient: ObservableObject {
         }
     }
     
-    public func setCredentials(_ credentials: Credentials) {
-        self.credentials = credentials
-    }
-    
     private func requireReady() throws {
         guard isReady else { throw ArgoError.notLoggedIn }
     }
@@ -64,7 +59,6 @@ public final class ArgoClient: ObservableObject {
     public func login() async throws {
         isLoading = true
         defer { isLoading = false }
-        lastError = nil
         
         let oldToken = token
         try await refreshToken()
