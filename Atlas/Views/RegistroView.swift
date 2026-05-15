@@ -25,9 +25,7 @@ struct RegistroView: View {
             let teacherMatch = selectedTeacher.isNilOrEmpty || entry.docente == selectedTeacher
             let dateMatch: Bool = {
                 guard let selectedDate else { return true }
-                let formatter = DateFormatter()
-                formatter.dateFormat = "yyyy-MM-dd"
-                return String(entry.datGiorno.prefix(10)) == formatter.string(from: selectedDate)
+                return String(entry.datGiorno.prefix(10)) == AtlasDate.dayKey(from: selectedDate)
             }()
             return subjectMatch && teacherMatch && dateMatch
         }
@@ -38,7 +36,7 @@ struct RegistroView: View {
             .sorted { $0.key > $1.key }
             .map { (
                 day: String($0.key),
-                entries: $0.value.sorted { (Int($0.ora) ?? 0) > (Int($1.ora) ?? 0) }
+                entries: $0.value.sorted { Int($0.ora) > Int($1.ora) }
             )}
     }
     
@@ -107,12 +105,7 @@ struct RegistroView: View {
     }
     
     private func formatDate(_ dateString: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateString) else { return dateString }
-        formatter.dateFormat = "EEEE, d MMMM"
-        formatter.locale = Locale(identifier: "it_IT")
-        return formatter.string(from: date)
+        AtlasDate.italianLongDay(from: dateString)
     }
 }
 

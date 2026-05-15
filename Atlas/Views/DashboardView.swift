@@ -185,7 +185,7 @@ private extension DashboardView {
     var tomorrowHomeworkCount: Int {
         guard let registro = client.dashboard?.registro else { return 0 }
         
-        let tomorrowKey = Self.dayFormatter.string(from: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
+        let tomorrowKey = AtlasDate.dayKey(from: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
         
         return registro.reduce(into: 0) { total, entry in
             total += entry.compiti.filter { $0.dataConsegna.prefix(10) == tomorrowKey }.count
@@ -193,7 +193,7 @@ private extension DashboardView {
     }
     
     func reminderDate(for item: Promemoria) -> Date? {
-        Self.dayFormatter.date(from: "\(item.datGiorno) \(item.oraInizio)") ?? Self.dayFormatter.date(from: item.datGiorno)
+        AtlasDate.parseSchoolDateTime(day: item.datGiorno, time: item.oraInizio)
     }
     
     func upcomingPromemoria(from items: [Promemoria]) -> [Promemoria] {
@@ -208,13 +208,4 @@ private extension DashboardView {
             return leftDate < rightDate
         }
     }
-    
-    static let dayFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = .current
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
 }

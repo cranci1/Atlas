@@ -26,6 +26,7 @@
 		1384B3742FB4AF7000C8B575 /* BachecaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3732FB4AF7000C8B575 /* BachecaView.swift */; };
 		1384B3772FB4AFBE00C8B575 /* CommunicationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3762FB4AFBE00C8B575 /* CommunicationCard.swift */; };
 		1384B3792FB4B00500C8B575 /* StatCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B3782FB4B00500C8B575 /* StatCard.swift */; };
+		1384B37B2FB76D4100C8B575 /* AtlasDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1384B37A2FB76D4100C8B575 /* AtlasDate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 		1384B3732FB4AF7000C8B575 /* BachecaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BachecaView.swift; sourceTree = "<group>"; };
 		1384B3762FB4AFBE00C8B575 /* CommunicationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunicationCard.swift; sourceTree = "<group>"; };
 		1384B3782FB4B00500C8B575 /* StatCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCard.swift; sourceTree = "<group>"; };
+		1384B37A2FB76D4100C8B575 /* AtlasDate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AtlasDate.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 		1317B3612FB218A9006D8416 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				1384B37A2FB76D4100C8B575 /* AtlasDate.swift */,
 				1317B3622FB218A9006D8416 /* LiquidGlassBackground.swift */,
 			);
 			path = Extensions;
@@ -225,6 +228,7 @@
 				1317B3772FB22162006D8416 /* ProfileView.swift in Sources */,
 				1317B3542FB2188C006D8416 /* AtlasApp.swift in Sources */,
 				1317B3752FB22151006D8416 /* DashboardView.swift in Sources */,
+				1384B37B2FB76D4100C8B575 /* AtlasDate.swift in Sources */,
 				1317B3702FB21D97006D8416 /* ArgoClient+Auth.swift in Sources */,
 				1317B36E2FB21D97006D8416 /* ArgoClient+Network.swift in Sources */,
 				1317B3672FB218CC006D8416 /* ArgoClient.swift in Sources */,

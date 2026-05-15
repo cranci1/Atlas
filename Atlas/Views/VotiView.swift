@@ -9,9 +9,11 @@ import Charts
 import SwiftUI
 
 func averageColor(_ avg: Double) -> Color {
-    if avg >= 6 { return .green }
-    if avg >= 5 { return .orange }
-    return .red
+    switch avg {
+    case 6...: .green
+    case 5..<6: .orange
+    default: .red
+    }
 }
 
 func calculateAverage(_ grades: [Voto]) -> Double {
@@ -42,6 +44,71 @@ struct VotiView: View {
     @EnvironmentObject var client: ArgoClient
     
     private var voti: [Voto] { client.dashboard?.voti ?? [] }
+    private var periodi: [Periodo] {
+        let list = client.dashboard?.listaPeriodi ?? []
+        return list.sorted { lhs, rhs in
+            periodoOrder(lhs.codPeriodo) < periodoOrder(rhs.codPeriodo)
+        }
+    }
+    @State private var selectedPeriodoIndex: Int = 0
+    
+    private func computeDefaultPeriodoIndex() {
+        guard !periodi.isEmpty else { selectedPeriodoIndex = 0; return }
+        let today = Date()
+        if let idx = periodi.firstIndex(where: { periodo in
+            guard periodo.codPeriodo != "*" else { return false }
+            let startString = periodo.datInizio ?? periodo.dataInizio
+            let endString = periodo.datFine ?? periodo.dataFine
+            guard let start = AtlasDate.parseSchoolDate(startString), let end = AtlasDate.parseSchoolDate(endString) else { return false }
+            return (start...end).contains(today)
+        }) {
+            selectedPeriodoIndex = idx
+        } else if let fullIdx = periodi.firstIndex(where: { $0.codPeriodo == "*" }) {
+            selectedPeriodoIndex = fullIdx
+        } else {
+            selectedPeriodoIndex = 0
+        }
+    }
+    
+    private var periodiFiltrati: [Voto] {
+        guard !periodi.isEmpty else { return voti }
+        let safeIndex = min(selectedPeriodoIndex, periodi.count - 1)
+        let selectedPeriodo = periodi[safeIndex]
+        if selectedPeriodo.codPeriodo == "*" { return voti }
+        let startString = selectedPeriodo.datInizio ?? selectedPeriodo.dataInizio
+        let endString = selectedPeriodo.datFine ?? selectedPeriodo.dataFine
+        
+        return voti.filter { voto in
+            guard let votoDate = AtlasDate.parseISODate(voto.datGiorno),
+                  let initDate = AtlasDate.parseSchoolDate(startString),
+                  let endDate = AtlasDate.parseSchoolDate(endString) else {
+                return false
+            }
+            return votoDate >= initDate && votoDate <= endDate
+        }
+    }
+    
+    private func periodoOrder(_ code: String) -> Int {
+        switch code {
+        case "1Q": return 0
+        case "SF", "2Q": return 1
+        case "*": return 2
+        default: return 3
+        }
+    }
+    
+    private func periodoDisplayName(_ periodo: Periodo) -> String {
+        switch periodo.codPeriodo {
+        case "1Q":
+            return "Primo Q"
+        case "SF", "2Q":
+            return "Secondo Q"
+        case "*":
+            return "Intero anno"
+        default:
+            return periodo.descrizione.capitalized
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -49,9 +116,22 @@ struct VotiView: View {
                 if voti.isEmpty {
                     ContentUnavailableView("Nessun voto", systemImage: "star.slash", description: Text("Non ci sono voti disponibili."))
                 } else {
-                    SubjectsListView(voti: voti)
-                        .scrollContentBackground(.hidden)
-                        .background(Color(.systemGroupedBackground))
+                    VStack(spacing: 0) {
+                        if !periodi.isEmpty {
+                            Picker("Periodo", selection: $selectedPeriodoIndex) {
+                                ForEach(periodi.indices, id: \.self) { index in
+                                    Text(periodoDisplayName(periodi[index]))
+                                        .tag(index)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .padding()
+                            .onAppear { computeDefaultPeriodoIndex() }
+                        }
+                        
+                        SubjectsListView(voti: periodiFiltrati)
+                            .scrollContentBackground(.hidden)
+                    }
                 }
             }
             .navigationTitle("Voti")
@@ -110,12 +190,6 @@ struct SubjectDetailView: View {
         votes.sorted { $0.datGiorno > $1.datGiorno }
     }
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter
-    }()
-    
     private var stats: VoteStats {
         VoteStats(votes: sortedVotes)
     }
@@ -137,7 +211,7 @@ struct SubjectDetailView: View {
                 } else {
                     Chart {
                         ForEach(sortedVotes, id: \.pk) { voto in
-                            let date = dateFormatter.date(from: voto.datGiorno) ?? Date()
+                            let date = AtlasDate.parseISODate(voto.datGiorno) ?? Date()
                             
                             LineMark(
                                 x: .value("Data", date),
@@ -213,7 +287,7 @@ struct VotoRow: View {
                 Circle()
                     .fill(gradeColor.opacity(0.15))
                     .frame(width: 44, height: 44)
-                Text(formatGradeValue(voto.valore))
+                Text(voto.codCodice)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundStyle(gradeColor)
             }
@@ -242,14 +316,6 @@ struct VotoRow: View {
                 .foregroundStyle(.secondary)
         }
         .contentShape(Rectangle())
-    }
-    
-    private func formatGradeValue(_ value: Double) -> String {
-        if value.truncatingRemainder(dividingBy: 1) == 0 {
-            return String(format: "%.0f", value)
-        } else {
-            return String(format: "%.1f", value)
-        }
     }
     
     private var gradeColor: Color { averageColor(voto.valore) }

@@ -284,11 +284,13 @@ public struct MateriaLight: Codable {
 public struct Periodo: Codable {
     public let pkPeriodo:        String
     public let dataInizio:       String
+    public let datInizio:        String?
     public let descrizione:      String
     public let votoUnico:        Bool
     public let mediaScrutinio:   Double
     public let isMediaScrutinio: Bool
     public let dataFine:         String
+    public let datFine:          String?
     public let codPeriodo:       String
     public let isScrutinioFinale: Bool
 }
