@@ -131,6 +131,7 @@ struct VotiView: View {
                         
                         SubjectsListView(voti: periodiFiltrati)
                             .scrollContentBackground(.hidden)
+                            .background(Color(.systemGroupedBackground))
                     }
                 }
             }
@@ -185,6 +186,7 @@ struct SubjectsListView: View {
 struct SubjectDetailView: View {
     let subject: String
     let votes: [Voto]
+    @State private var selectedVote: Voto? = nil
     
     private var sortedVotes: [Voto] {
         votes.sorted { $0.datGiorno > $1.datGiorno }
@@ -265,7 +267,12 @@ struct SubjectDetailView: View {
             
             Section {
                 ForEach(sortedVotes) { voto in
-                    VotoRow(voto: voto, hideSubject: true)
+                    Button {
+                        selectedVote = voto
+                    } label: {
+                        VotoRow(voto: voto, hideSubject: true)
+                    }
+                    .buttonStyle(.plain)
                 }
             } header: {
                 Text("Voti")
@@ -274,6 +281,83 @@ struct SubjectDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(subject)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $selectedVote) { voto in
+            VoteDetailView(voto: voto)
+                .presentationDetents([.fraction(0.5)])
+                .presentationDragIndicator(.visible)
+        }
+    }
+}
+
+struct VoteDetailView: View {
+    let voto: Voto
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(voto.desMateria)
+                                    .font(.headline)
+                                Text(voto.docente)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            Text(String(format: "%.1f", voto.valore))
+                                .font(.system(size: 18, weight: .bold, design: .rounded))
+                                .foregroundStyle(averageColor(voto.valore))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(averageColor(voto.valore).opacity(0.15), in: Capsule())
+                        }
+                        
+                        Text(voto.descrizioneProva.isEmpty ? "" : voto.descrizioneProva)
+                            .font(.body)
+                            .foregroundStyle(.primary)
+                            .multilineTextAlignment(.leading)
+                        
+                        if !voto.desCommento.isEmpty {
+                            VoteInfoRow(title: "Commento", value: voto.desCommento)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 20)
+            }
+            .scrollIndicators(.hidden)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Dettaglio voto")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Chiudi") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+struct VoteInfoRow: View {
+    let title: String
+    let value: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.leading)
+        }
     }
 }
 
