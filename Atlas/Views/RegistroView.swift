@@ -171,18 +171,34 @@ struct RegistroRow: View {
     @ViewBuilder
     private var homeworkSection: some View {
         if !entry.compiti.isEmpty {
-            VStack(alignment: .leading, spacing: 4) {
-                Label("Compiti", systemImage: "pencil.and.list.clipboard")
-                    .font(.caption.bold())
-                    .foregroundStyle(Color(.systemTeal))
+            let headerDate: String? = {
+                let dates = Set(entry.compiti.map { String($0.dataConsegna.prefix(10)) })
+                if dates.count == 1 { return dates.first }
+                if entry.compiti.count == 1 { return String(entry.compiti.first!.dataConsegna.prefix(10)) }
+                return nil
+            }()
+            
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(alignment: .center, spacing: 6) {
+                    Image(systemName: "pencil.and.list.clipboard")
+                        .font(.caption)
+                        .foregroundStyle(Color(.systemTeal))
+                    Text("Compiti")
+                        .font(.caption.bold())
+                        .foregroundStyle(Color(.systemTeal))
+                    Spacer()
+                    if let headerDate = headerDate {
+                        Text(headerDate)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
                 ForEach(entry.compiti, id: \.dataConsegna) { compito in
                     HStack(alignment: .top, spacing: 6) {
                         Text(compito.compito)
                             .font(.caption)
                         Spacer()
-                        Text(compito.dataConsegna.prefix(10))
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -274,17 +290,4 @@ struct FiltersView: View {
 
 extension Optional where Wrapped == String {
     var isNilOrEmpty: Bool { self?.isEmpty ?? true }
-}
-
-extension View {
-    func placeholder<Content: View>(
-        when shouldShow: Bool,
-        alignment: Alignment = .leading,
-        @ViewBuilder placeholder: () -> Content
-    ) -> some View {
-        ZStack(alignment: alignment) {
-            placeholder().opacity(shouldShow ? 1 : 0)
-            self
-        }
-    }
 }
