@@ -116,7 +116,7 @@ struct LoginView: View {
                                 .foregroundStyle(.teal)
                                 .padding(.bottom, 20)
                             
-                            Text("Bentornato.")
+                            Text("Benvenuto.")
                                 .font(.system(size: 34, weight: .bold, design: .default))
                                 .foregroundStyle(.white)
                             
