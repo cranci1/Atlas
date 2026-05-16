@@ -309,7 +309,7 @@ struct VoteDetailView: View {
                             
                             Spacer()
                             
-                            Text(String(format: "%.1f", voto.valore))
+                            Text(voto.codCodice)
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundStyle(averageColor(voto.valore))
                                 .padding(.horizontal, 12)
@@ -331,7 +331,6 @@ struct VoteDetailView: View {
                 .padding(.vertical, 20)
             }
             .scrollIndicators(.hidden)
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Dettaglio voto")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
