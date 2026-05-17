@@ -1,20 +1,10 @@
 # Atlas
 
-Nato come capolavoro per l'anno scolastico 2025/2026, Atlas è un client, non ufficiale, di Argo didUp che permette di visulizzare i propri dati in un environment dedicato allo studente.
 
 
-## Screenshots
-
-| <p align="center"><img alt="login" src="assets/screenshots/login.PNG" width="200"></p> | <p align="center"><img alt="voti" src="assets/screenshots/voti.jpg" width="200"></p> | <p align="center"><img alt="attivita" src="assets/screenshots/attivita.jpg" width="200"></p> | <p align="center"><img alt="bacheca" src="assets/screenshots/bacheca.PNG" width="200"></p> |
-|:--:|:--:|:--:|:--:|
-| **Login** | **Voti** | **Attività** | **Bacheca** |
-
-## License
-
-Essendo un progetto extrascolastico Atlas ha una licenza propria:
 
 ```
-Copyright (c) 2026 cranci
+Copyright (c) 2026 Trevisan Francesco
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
@@ -37,5 +27,3 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 ```
-
-Atlas non ha alcun legame con Argo Software srl. I dati inseriti dall'utente sono utilizzati solo per contattare i server ufficiali di Argo. Nessun dato viene condiviso con servizi di terze parti.
