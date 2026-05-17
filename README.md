@@ -2,10 +2,9 @@
 
 Nato come capolavoro per l'anno scolastico 2025/2026, Atlas è un client, non ufficiale, di Argo didUp che permette di visulizzare i propri dati in un environment dedicato allo studente.
 
+## Screenshots
 
-## Screenshots
-
-| <p align="center"><img alt="login" src="assets/screenshots/login.PNG" width="200"></p> | <p align="center"><img alt="voti" src="assets/screenshots/voti.jpg" width="200"></p> | <p align="center"><img alt="attivita" src="assets/screenshots/attivita.jpg" width="200"></p> | <p align="center"><img alt="bacheca" src="assets/screenshots/bacheca.PNG" width="200"></p> |
+| <p align="center"><img alt="login" src="assetts/screenshots/login.PNG" width="200"></p> | <p align="center"><img alt="voti" src="assetts/screenshots/voti.jpg" width="200"></p> | <p align="center"><img alt="attivita" src="assetts/screenshots/attivita.jpg" width="200"></p> | <p align="center"><img alt="bacheca" src="assetts/screenshots/bacheca.PNG" width="200"></p> |
 |:--:|:--:|:--:|:--:|
 | **Login** | **Voti** | **Attività** | **Bacheca** |
 
