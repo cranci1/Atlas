@@ -10,6 +10,7 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var client: ArgoClient
     @State private var isRefreshing = false
+    @State private var showHomeworkSheet = false
     
     var body: some View {
         NavigationStack {
@@ -20,7 +21,11 @@ struct DashboardView: View {
                     }
                     
                     if let db = client.dashboard {
-                        StatsRow(dashboard: db, tomorrowHomeworkCount: tomorrowHomeworkCount)
+                        StatsRow(
+                            dashboard: db,
+                            tomorrowHomeworkCount: tomorrowHomeworkCount,
+                            onHomeworkTap: { showHomeworkSheet = true }
+                        )
                         
                         HorizontalSection(
                             title: "Bacheca",
@@ -77,6 +82,11 @@ struct DashboardView: View {
                 }
             }
             .refreshable { await refresh() }
+            .sheet(isPresented: $showHomeworkSheet) {
+                HomeworkSheetView(items: tomorrowHomeworkItems)
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.visible)
+            }
         }
     }
     
@@ -154,14 +164,73 @@ struct StudentHeaderCard: View {
 struct StatsRow: View {
     let dashboard: DashboardDati
     let tomorrowHomeworkCount: Int
+    let onHomeworkTap: () -> Void
     
     var body: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: 12)], spacing: 12) {
             StatCard(title: "Media", value: String(format: "%.1f", dashboard.mediaGenerale), icon: "chart.bar.fill", color: .blue)
-            StatCard(title: "Compiti", value: "\(tomorrowHomeworkCount)", icon: "backpack", color: .orange)
+            Button(action: onHomeworkTap) {
+                StatCard(title: "Compiti", value: "\(tomorrowHomeworkCount)", icon: "backpack", color: .orange)
+            }
+            .buttonStyle(.plain)
             StatCard(title: "Eventi", value: "\(dashboard.appello.count)", icon: "calendar.badge.minus", color: .red)
         }
     }
+}
+
+struct HomeworkSheetView: View {
+    let items: [HomeworkItem]
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationStack {
+            Group {
+                if items.isEmpty {
+                    ContentUnavailableView(
+                        "Nessun compito",
+                        systemImage: "backpack",
+                        description: Text("Non risultano compiti in scadenza per domani.")
+                    )
+                } else {
+                    List(items) { item in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(alignment: .top, spacing: 10) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.subject)
+                                        .font(.headline)
+                                    Text(item.teacher)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer(minLength: 0)
+                                Text(item.dueDate)
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Text(item.text)
+                                .font(.body)
+                        }
+                        .padding(.vertical, 6)
+                    }
+                    .listStyle(.insetGrouped)
+                }
+            }
+            .navigationTitle("Compiti di domani")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Chiudi") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+struct HomeworkItem: Identifiable {
+    let id: String
+    let subject: String
+    let teacher: String
+    let dueDate: String
+    let text: String
 }
 
 struct SectionHeader: View {
@@ -183,12 +252,29 @@ struct SectionHeader: View {
 
 private extension DashboardView {
     var tomorrowHomeworkCount: Int {
-        guard let registro = client.dashboard?.registro else { return 0 }
-        
+        tomorrowHomeworkItems.count
+    }
+
+    var tomorrowHomeworkItems: [HomeworkItem] {
+        guard let registro = client.dashboard?.registro else { return [] }
+
         let tomorrowKey = AtlasDate.dayKey(from: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
-        
-        return registro.reduce(into: 0) { total, entry in
-            total += entry.compiti.filter { $0.dataConsegna.prefix(10) == tomorrowKey }.count
+
+        return registro.flatMap { entry in
+            entry.compiti.enumerated().compactMap { index, compito in
+                guard compito.dataConsegna.prefix(10) == tomorrowKey else { return nil }
+                return HomeworkItem(
+                    id: "\(entry.pk)-\(index)-\(compito.dataConsegna)",
+                    subject: entry.materia,
+                    teacher: entry.docente,
+                    dueDate: String(compito.dataConsegna.prefix(10)),
+                    text: compito.compito
+                )
+            }
+        }
+        .sorted {
+            if $0.dueDate == $1.dueDate { return $0.id < $1.id }
+            return $0.dueDate < $1.dueDate
         }
     }
     
