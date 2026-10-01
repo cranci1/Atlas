@@ -7,6 +7,18 @@
 
 import Foundation
 
+private struct AnyEncodable: Encodable {
+    private let encodeClosure: (Encoder) throws -> Void
+    
+    init(_ value: Encodable) {
+        encodeClosure = value.encode
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        try encodeClosure(encoder)
+    }
+}
+
 extension ArgoClient {
     func applyCookies(_ request: inout URLRequest) {
         guard let url = request.url else { return }
@@ -140,15 +152,15 @@ extension ArgoClient {
     func apiRequest<T: Decodable>(
         _ path: String,
         method: String? = nil,
-        jsonBody: (some Encodable)? = nil as String?
+        jsonBody: Encodable? = nil
     ) async throws -> T {
         let (data, _) = try await apiRequestRaw(path, method: method, jsonBody: jsonBody)
+        
         do {
             return try argoJSONDecoder.decode(T.self, from: data)
         } catch {
-            let raw = String(data: data, encoding: .utf8) ?? "<binary>"
             throw ArgoError.invalidResponse(
-                "Decode error for \(path): \(error)\nRaw response: \(raw.prefix(400))"
+                "Impossibile interpretare la risposta di \(path)."
             )
         }
     }
@@ -156,33 +168,64 @@ extension ArgoClient {
     func apiRequestRaw(
         _ path: String,
         method: String? = nil,
-        jsonBody: (some Encodable)? = nil as String?
+        jsonBody: Encodable? = nil,
+        validateStatus: Bool = true
     ) async throws -> (Data, URLResponse) {
         let hasBody = jsonBody != nil
         let httpMethod = method ?? (hasBody ? "POST" : "GET")
-        guard let url = URL(string: "\(argoBaseURL)/appfamiglia/api/rest/\(path)") else {
+        
+        guard let baseURL = URL(string: argoBaseURL) else {
             throw ArgoError.invalidLoginURL
         }
         
+        let url = baseURL
+            .appendingPathComponent("appfamiglia")
+            .appendingPathComponent("api")
+            .appendingPathComponent("rest")
+            .appendingPathComponent(path)
+        
         var request = URLRequest(url: url)
         request.httpMethod = httpMethod
-        request.setValue("application/json", forHTTPHeaderField: "accept")
+        request.timeoutInterval = 30
+        applyAppHeaders(&request)
         request.setValue(version, forHTTPHeaderField: "argo-client-version")
-        request.setValue("Bearer \(token?.access_token ?? "")", forHTTPHeaderField: "authorization")
+        
+        if let accessToken = token?.access_token, !accessToken.isEmpty {
+            request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "authorization")
+        }
         
         if let loginData {
             request.setValue(loginData.token, forHTTPHeaderField: "x-auth-token")
             request.setValue(loginData.codMin, forHTTPHeaderField: "x-cod-min")
         }
+        
         if let token {
             request.setValue(argoFormatDate(token.expireDate), forHTTPHeaderField: "x-date-exp-auth")
         }
-        if hasBody, let body = jsonBody {
+        
+        if let body = jsonBody {
             request.setValue("application/json", forHTTPHeaderField: "content-type")
-            request.httpBody = try argoJSONEncoder.encode(body)
+            request.httpBody = try argoJSONEncoder.encode(AnyEncodable(body))
         }
         
-        return try await session.data(for: request)
+        applyCookies(&request)
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            storeCookies(from: response, fallbackURL: request.url)
+            
+            if validateStatus,
+               let http = response as? HTTPURLResponse,
+               !(200..<300).contains(http.statusCode) {
+                throw ArgoError.httpError(statusCode: http.statusCode)
+            }
+            
+            return (data, response)
+        } catch let error as ArgoError {
+            throw error
+        } catch {
+            throw ArgoError.network(error)
+        }
     }
     
     func fetchLoginData() async throws {

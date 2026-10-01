@@ -132,8 +132,8 @@
 				1317B3722FB220A7006D8416 /* LoginView.swift */,
 				1317B3762FB22162006D8416 /* ProfileView.swift */,
 				1317B3782FB2217C006D8416 /* RegistroView.swift */,
-				1317B3742FB22150006D8416 /* DashboardView.swift */,
 				1384B3732FB4AF7000C8B575 /* BachecaView.swift */,
+				1317B3742FB22150006D8416 /* DashboardView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";

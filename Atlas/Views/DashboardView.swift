@@ -11,6 +11,7 @@ struct DashboardView: View {
     @EnvironmentObject var client: ArgoClient
     @State private var isRefreshing = false
     @State private var showHomeworkSheet = false
+    @State private var errorMessage: String?
     
     var body: some View {
         NavigationStack {
@@ -82,6 +83,28 @@ struct DashboardView: View {
                 }
             }
             .refreshable { await refresh() }
+            .overlay {
+                if client.profile == nil && client.dashboard == nil && !isRefreshing {
+                    ContentUnavailableView(
+                        "Dati non disponibili",
+                        systemImage: "wifi.exclamationmark",
+                        description: Text("Aggiorna per provare a recuperare i dati da Argo.")
+                    )
+                }
+            }
+            .alert(
+                "Aggiornamento non riuscito",
+                isPresented: Binding(
+                    get: { errorMessage != nil },
+                    set: { if !$0 { errorMessage = nil } }
+                ),
+                actions: {
+                    Button("OK", role: .cancel) { errorMessage = nil }
+                },
+                message: {
+                    Text(errorMessage ?? "Si è verificato un errore.")
+                }
+            )
             .sheet(isPresented: $showHomeworkSheet) {
                 HomeworkSheetView(items: tomorrowHomeworkItems)
                     .presentationDetents([.medium])
@@ -91,9 +114,16 @@ struct DashboardView: View {
     }
     
     private func refresh() async {
+        guard !isRefreshing else { return }
+        
         isRefreshing = true
-        try? await client.fetchDashboard()
-        isRefreshing = false
+        defer { isRefreshing = false }
+        
+        do {
+            try await client.fetchDashboard()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }
 
@@ -254,12 +284,12 @@ private extension DashboardView {
     var tomorrowHomeworkCount: Int {
         tomorrowHomeworkItems.count
     }
-
+    
     var tomorrowHomeworkItems: [HomeworkItem] {
         guard let registro = client.dashboard?.registro else { return [] }
-
+        
         let tomorrowKey = AtlasDate.dayKey(from: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date())
-
+        
         return registro.flatMap { entry in
             entry.compiti.enumerated().compactMap { index, compito in
                 guard compito.dataConsegna.prefix(10) == tomorrowKey else { return nil }

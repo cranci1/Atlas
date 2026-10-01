@@ -33,13 +33,21 @@ public final class ArgoClient: ObservableObject {
         self.version = version
         self.stateFileURL = ArgoClient.makeStateFileURL()
         
-        let configuration = URLSessionConfiguration.default
+        let configuration = URLSessionConfiguration.ephemeral
         let cookieStorage = HTTPCookieStorage()
         configuration.httpCookieStorage = cookieStorage
         configuration.httpShouldSetCookies = true
         configuration.httpCookieAcceptPolicy = .always
+        configuration.timeoutIntervalForRequest = 30
+        configuration.timeoutIntervalForResource = 60
+        configuration.waitsForConnectivity = false
+        
         self.cookieStorage = cookieStorage
-        self.session = URLSession(configuration: configuration, delegate: NoRedirectDelegate(), delegateQueue: nil)
+        self.session = URLSession(
+            configuration: configuration,
+            delegate: NoRedirectDelegate(),
+            delegateQueue: nil
+        )
         
         restorePersistedState()
         
@@ -91,14 +99,27 @@ public final class ArgoClient: ObservableObject {
     }
     
     public func logOut() async throws {
-        guard token != nil, loginData != nil else { throw ArgoError.notLoggedIn }
-        try await rimuoviProfilo()
+        guard token != nil, loginData != nil else {
+            throw ArgoError.notLoggedIn
+        }
+        
+        var remoteError: Error?
+        do {
+            try await rimuoviProfilo()
+        } catch {
+            remoteError = error
+        }
+        
         clearPersistedState()
         token = nil
         loginData = nil
         profile = nil
         dashboard = nil
         isReady = false
+        
+        if let remoteError {
+            throw remoteError
+        }
     }
     
     public func getDettagliProfilo() async throws -> DettagliProfilo {

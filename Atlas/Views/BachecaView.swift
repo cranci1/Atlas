@@ -110,6 +110,7 @@ struct CommunicationDetailView: View {
     
     @EnvironmentObject var client: ArgoClient
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     
     var body: some View {
         NavigationStack {

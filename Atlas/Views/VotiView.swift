@@ -16,27 +16,34 @@ func averageColor(_ avg: Double) -> Color {
     }
 }
 
+private func countedGrades(_ grades: [Voto]) -> [Voto] {
+    grades.filter { $0.faMenoMedia != "S" }
+}
+
 func calculateAverage(_ grades: [Voto]) -> Double {
-    let counting = grades.filter { $0.faMenoMedia != "S" }
-    guard !counting.isEmpty else { return 0 }
-    return counting.map(\.valore).reduce(0, +) / Double(counting.count)
+    let counted = countedGrades(grades)
+    guard !counted.isEmpty else { return 0 }
+    return counted.reduce(into: 0) { $0 += $1.valore } / Double(counted.count)
 }
 
 struct VoteStats {
     let votes: [Voto]
     
+    private var countedVotes: [Voto] {
+        countedGrades(votes)
+    }
+    
     var average: Double {
-        calculateAverage(votes)
+        guard !countedVotes.isEmpty else { return 0 }
+        return countedVotes.reduce(into: 0) { $0 += $1.valore } / Double(countedVotes.count)
     }
     
     var minVote: Double {
-        let counting = votes.filter { $0.faMenoMedia != "S" }
-        return counting.map(\.valore).min() ?? 0
+        countedVotes.map(\.valore).min() ?? 0
     }
     
     var maxVote: Double {
-        let counting = votes.filter { $0.faMenoMedia != "S" }
-        return counting.map(\.valore).max() ?? 0
+        countedVotes.map(\.valore).max() ?? 0
     }
 }
 
@@ -204,6 +211,17 @@ struct SubjectDetailView: View {
         min(stats.maxVote + 0.15, 10)
     }
     
+    private var chartDomain: ClosedRange<Double> {
+        let minimum = minChartVoto
+        let maximum = maxChartVoto
+        
+        guard minimum < maximum else {
+            return max(0, minimum - 0.5)...min(10, maximum + 0.5)
+        }
+        
+        return minimum...maximum
+    }
+    
     var body: some View {
         List {
             Section {
@@ -234,7 +252,7 @@ struct SubjectDetailView: View {
                             }
                     }
                     .frame(height: 250)
-                    .chartYScale(domain: minChartVoto...maxChartVoto)
+                    .chartYScale(domain: chartDomain)
                     .padding(.vertical)
                 }
             }

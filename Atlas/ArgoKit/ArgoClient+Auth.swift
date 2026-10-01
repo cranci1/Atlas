@@ -13,7 +13,7 @@ extension ArgoClient {
             return try await getToken()
         }
         
-        guard token.expireDate <= Date() else { return }
+        guard token.expireDate <= Date().addingTimeInterval(60) else { return }
         
         let now = Date()
         let scopeList = "[" + token.scope.split(separator: " ").joined(separator: ", ") + "]"
@@ -33,7 +33,8 @@ extension ArgoClient {
         
         let (data, response) = try await apiRequestRaw(
             "auth/refresh-token",
-            jsonBody: bodyDict.compactMapValues { $0 }
+            jsonBody: bodyDict.compactMapValues { $0 },
+            validateStatus: false
         )
         var expireDate = parseHTTPDate((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "date")) ?? now
         

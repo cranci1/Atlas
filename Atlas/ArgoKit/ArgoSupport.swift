@@ -9,7 +9,7 @@ import CryptoKit
 import Foundation
 
 public let argoClientId = "72fd6dea-d0ab-4bb9-8eaa-3ac24c84886c"
-public let argoDefaultVersion = "1.29.2"
+public let argoDefaultVersion = "1.30.2"
 public let argoBaseURL = "https://www.portaleargo.it"
 public let argoAuthURL = "https://auth.portaleargo.it"
 public let argoRedirectURI = "it.argosoft.didup.famiglia.new://login-callback"
@@ -20,10 +20,12 @@ public enum ArgoError: LocalizedError {
     case missingCredentials
     case apiError(String)
     case tokenError(String)
+    case httpError(statusCode: Int)
     case invalidLoginURL
     case invalidLoginChallenge
     case invalidLoginCode
     case invalidResponse(String)
+    case network(Error)
     
     public var errorDescription: String? {
         switch self {
@@ -35,6 +37,8 @@ public enum ArgoError: LocalizedError {
             return message
         case .tokenError(let message):
             return "Errore token: \(message)"
+        case .httpError(let statusCode):
+            return "Errore di rete (HTTP \(statusCode))."
         case .invalidLoginURL:
             return "URL di login non valido."
         case .invalidLoginChallenge:
@@ -43,6 +47,8 @@ public enum ArgoError: LocalizedError {
             return "Codice di autorizzazione non trovato, controlla le credenziali."
         case .invalidResponse(let message):
             return "Risposta non valida: \(message)"
+        case .network(let error):
+            return "Errore di rete: \(error.localizedDescription)"
         }
     }
 }
@@ -101,8 +107,16 @@ func argoFormatDate(_ date: Date) -> String {
 }
 
 func argoRandomString(_ length: Int) -> String {
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    return String((0..<length).map { _ in characters.randomElement() ?? "A" })
+    guard length > 0 else { return "" }
+    
+    let characters = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+    var generator = SystemRandomNumberGenerator()
+    
+    return String(
+        (0..<length).compactMap { _ in
+            characters.randomElement(using: &generator)
+        }
+    )
 }
 
 func pkceChallengeFromVerifier(_ verifier: String) -> String {

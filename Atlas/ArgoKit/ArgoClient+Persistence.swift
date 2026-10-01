@@ -15,29 +15,77 @@ extension ArgoClient {
         let dashboard: DashboardDati?
     }
     
+    private static let stateDirectoryName = "Atlas"
+    private static let legacyStateDirectoryName = "Orion"
+    private static let stateFileName = "client-state.json"
+    
     static func makeStateFileURL() -> URL {
         let fileManager = FileManager.default
-        let baseDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first ?? fileManager.temporaryDirectory
-        let appDirectory = baseDirectory.appendingPathComponent("Orion", isDirectory: true)
+        let baseDirectory = fileManager.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first ?? fileManager.temporaryDirectory
         
-        if !fileManager.fileExists(atPath: appDirectory.path) {
-            try? fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true)
+        let appDirectory = baseDirectory.appendingPathComponent(
+            stateDirectoryName,
+            isDirectory: true
+        )
+        
+        do {
+            try fileManager.createDirectory(
+                at: appDirectory,
+                withIntermediateDirectories: true
+            )
+            try fileManager.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: appDirectory.path
+            )
+        } catch { }
+        
+        return appDirectory.appendingPathComponent(stateFileName)
+    }
+    
+    private static func legacyStateFileURL() -> URL? {
+        let fileManager = FileManager.default
+        guard let baseDirectory = fileManager.urls(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask
+        ).first else {
+            return nil
         }
         
-        return appDirectory.appendingPathComponent("client-state.json")
+        return baseDirectory
+            .appendingPathComponent(legacyStateDirectoryName, isDirectory: true)
+            .appendingPathComponent(stateFileName)
     }
     
     func restorePersistedState() {
-        guard let data = try? Data(contentsOf: stateFileURL), !data.isEmpty else { return }
-        guard let snapshot = try? argoJSONDecoder.decode(PersistedState.self, from: data) else { return }
+        let urls = [stateFileURL, Self.legacyStateFileURL()].compactMap { $0 }
         
-        isRestoringState = true
-        token = snapshot.token
-        loginData = snapshot.loginData
-        profile = snapshot.profile
-        dashboard = snapshot.dashboard
-        isReady = snapshot.token != nil && snapshot.loginData != nil
-        isRestoringState = false
+        for url in urls {
+            guard
+                let data = try? Data(contentsOf: url),
+                !data.isEmpty,
+                let snapshot = try? argoJSONDecoder.decode(PersistedState.self, from: data)
+            else {
+                continue
+            }
+            
+            isRestoringState = true
+            token = snapshot.token
+            loginData = snapshot.loginData
+            profile = snapshot.profile
+            dashboard = snapshot.dashboard
+            isReady = snapshot.token != nil && snapshot.loginData != nil
+            isRestoringState = false
+            
+            if url != stateFileURL {
+                persistState()
+                try? FileManager.default.removeItem(at: url)
+            }
+            
+            return
+        }
     }
     
     func persistState() {
@@ -50,13 +98,21 @@ extension ArgoClient {
             dashboard: dashboard
         )
         
-        if snapshot.token == nil && snapshot.loginData == nil && snapshot.profile == nil && snapshot.dashboard == nil {
+        if snapshot.token == nil &&
+            snapshot.loginData == nil &&
+            snapshot.profile == nil &&
+            snapshot.dashboard == nil {
             clearPersistedState()
             return
         }
         
-        guard let data = try? argoJSONEncoder.encode(snapshot) else { return }
-        try? data.write(to: stateFileURL, options: [.atomic])
+        do {
+            let data = try argoJSONEncoder.encode(snapshot)
+            try data.write(
+                to: stateFileURL,
+                options: [.atomic, .completeFileProtection]
+            )
+        } catch { }
     }
     
     func clearPersistedState() {

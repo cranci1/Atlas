@@ -12,6 +12,7 @@ struct ProfileView: View {
     @State private var dettagli: DettagliProfilo?
     @State private var isLoading = false
     @State private var showLogoutAlert = false
+    @State private var errorMessage: String?
     
     var body: some View {
         NavigationStack {
@@ -75,20 +76,44 @@ struct ProfileView: View {
             .alert("Esci dall'account?", isPresented: $showLogoutAlert) {
                 Button("Esci", role: .destructive) {
                     Task {
-                        try? await client.logOut()
+                        do {
+                            try await client.logOut()
+                        } catch {
+                            errorMessage = error.localizedDescription
+                        }
                     }
                 }
                 Button("Annulla", role: .cancel) {}
             } message: {
                 Text("Dovrai effettuare di nuovo il login.")
             }
+            .alert(
+                "Operazione non riuscita",
+                isPresented: Binding(
+                    get: { errorMessage != nil },
+                    set: { if !$0 { errorMessage = nil } }
+                ),
+                actions: {
+                    Button("OK", role: .cancel) { errorMessage = nil }
+                },
+                message: {
+                    Text(errorMessage ?? "Si è verificato un errore.")
+                }
+            )
         }
     }
     
     private func loadDetails() async {
+        guard !isLoading else { return }
+        
         isLoading = true
         defer { isLoading = false }
-        dettagli = try? await client.getDettagliProfilo()
+        
+        do {
+            dettagli = try await client.getDettagliProfilo()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }
 

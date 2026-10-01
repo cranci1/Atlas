@@ -174,7 +174,9 @@ struct RegistroRow: View {
             let headerDate: String? = {
                 let dates = Set(entry.compiti.map { String($0.dataConsegna.prefix(10)) })
                 if dates.count == 1 { return dates.first }
-                if entry.compiti.count == 1 { return String(entry.compiti.first!.dataConsegna.prefix(10)) }
+                if let firstHomework = entry.compiti.first, entry.compiti.count == 1 {
+                    return String(firstHomework.dataConsegna.prefix(10))
+                }
                 return nil
             }()
             
@@ -289,5 +291,7 @@ struct FiltersView: View {
 }
 
 extension Optional where Wrapped == String {
-    var isNilOrEmpty: Bool { self?.isEmpty ?? true }
+    var isNilOrEmpty: Bool {
+        self?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
+    }
 }
